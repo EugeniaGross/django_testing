@@ -17,6 +17,11 @@ from django.urls import reverse
     ),
 )
 def test_pages_availability_for_anonymous_user(client, new, name, args):
+    '''
+    Главная страница, страница отдельной новости,
+    страница входа, выхода, регистрации доступны
+    анонимному пользователю.
+    '''
     url = reverse(name, args=args)
     response = client.get(url)
     assert response.status_code == HTTPStatus.OK
@@ -37,6 +42,10 @@ def test_pages_availability_for_anonymous_user(client, new, name, args):
 def test_pages_availability_for_different_users(
         parametrized_client, name, comment_id_for_args, expected_status
 ):
+    '''
+    Страница редактирования и удаления комментария
+    доступны автору комментария и недоступны не автору.
+    '''
     url = reverse(name, args=(comment_id_for_args))
     response = parametrized_client.get(url)
     assert response.status_code == expected_status
@@ -51,6 +60,11 @@ def test_pages_availability_for_different_users(
     ),
 )
 def test_redirects(client, name, args):
+    '''
+    При попытке перехода анонимного пользователя
+    на страницы удаления и редактирования происходит
+    редирект на страницу входа.
+    '''
     login_url = reverse('users:login')
     url = reverse(name, args=args)
     expected_url = f'{login_url}?next={url}'

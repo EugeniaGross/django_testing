@@ -1,7 +1,8 @@
 from datetime import datetime, timedelta
-import pytest
 
+import pytest
 from django.conf import settings
+from django.urls import reverse
 from django.utils import timezone
 
 from news.forms import BAD_WORDS
@@ -52,8 +53,6 @@ def news():
         News(
             title=f'Новость {index}',
             text='Просто текст.',
-            # Для каждой новости уменьшаем дату на index дней от today,
-            # где index - счётчик цикла.
             date=today - timedelta(days=index)
         )
         for index in range(settings.NEWS_COUNT_ON_HOME_PAGE + 1)
@@ -64,15 +63,11 @@ def news():
 @pytest.fixture
 def comments(new, author):
     now = timezone.now()
-    # Создаём комментарии в цикле.
     for index in range(2):
-        # Создаём объект и записываем его в переменную.
         comment = Comment.objects.create(
             news=new, author=author, text=f'Tекст {index}',
         )
-    # Сразу после создания меняем время создания комментария.
         comment.created = now + timedelta(days=index)
-    # И сохраняем эти изменения.
         comment.save()
 
 
@@ -84,3 +79,15 @@ def form_data():
 @pytest.fixture
 def bad_words_data():
     return {'text': f'Какой-то текст, {BAD_WORDS[0]}, еще текст'}
+
+
+@pytest.fixture
+def home_url():
+    url = reverse('news:home')
+    return url
+
+
+@pytest.fixture
+def detail_url(id_for_args):
+    url = reverse('news:detail', args=(id_for_args))
+    return url

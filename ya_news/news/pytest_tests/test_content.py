@@ -1,22 +1,20 @@
 import pytest
-
 from django.conf import settings
-from django.urls import reverse
 
 
 @pytest.mark.django_db
-def test_news_count(client, news):
-    url = reverse('news:home')
-    response = client.get(url)
+def test_news_count(client, news, home_url):
+    '''Количество новостей на главной странице.'''
+    response = client.get(home_url)
     object_list = response.context['object_list']
     news_count = len(object_list)
     assert news_count == settings.NEWS_COUNT_ON_HOME_PAGE
 
 
 @pytest.mark.django_db
-def test_news_order(client, news):
-    url = reverse('news:home')
-    response = client.get(url)
+def test_news_order(client, news, home_url):
+    '''Сортировка новостей.'''
+    response = client.get(home_url)
     object_list = response.context['object_list']
     all_dates = [news.date for news in object_list]
     sorted_dates = sorted(all_dates, reverse=True)
@@ -24,9 +22,9 @@ def test_news_order(client, news):
 
 
 @pytest.mark.django_db
-def test_comments_order(client, new, comments, id_for_args):
-    url = reverse('news:detail', args=(id_for_args))
-    response = client.get(url)
+def test_comments_order(client, new, comments, detail_url):
+    '''Сортировка комментариев.'''
+    response = client.get(detail_url)
     assert 'news' in response.context
     news = response.context['news']
     all_comments = news.comment_set.all()
@@ -35,7 +33,6 @@ def test_comments_order(client, new, comments, id_for_args):
 
 @pytest.mark.django_db
 @pytest.mark.parametrize(
-
     'parametrized_client, comment_in_list',
     (
         (pytest.lazy_fixture('author_client'), True),
@@ -43,8 +40,11 @@ def test_comments_order(client, new, comments, id_for_args):
     )
 )
 def test_notes_list_for_different_users(
-        new, parametrized_client, comment_in_list, id_for_args
+        new, parametrized_client, comment_in_list, detail_url
 ):
-    url = reverse('news:detail', args=(id_for_args))
-    response = parametrized_client.get(url)
+    '''
+    Форма для комментариев для зарегистрированного
+    и незарегистированного пользователя.
+    '''
+    response = parametrized_client.get(detail_url)
     assert ('form' in response.context) is comment_in_list

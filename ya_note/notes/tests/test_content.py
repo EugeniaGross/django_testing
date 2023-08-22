@@ -12,17 +12,19 @@ class TestContent(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.author = User.objects.create(username='author')
-        cls.author_client = Client()
-        cls.author_client.force_login(cls.author)
         cls.reader = User.objects.create(username='reader')
-        cls.reader_client = Client()
-        cls.reader_client.force_login(cls.reader)
         cls.note = Note.objects.create(
             title='Заголовок',
             text='Текст',
             slug='author_1',
             author=cls.author,
         )
+
+    def setUp(self):
+        self.author_client = Client()
+        self.author_client.force_login(self.author)
+        self.reader_client = Client()
+        self.reader_client.force_login(self.reader)
 
     def test_authorized_client_has_form(self):
         urls = (

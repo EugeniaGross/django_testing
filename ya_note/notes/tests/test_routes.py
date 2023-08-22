@@ -53,9 +53,14 @@ class TestRoutes(TestCase):
             (self.author, HTTPStatus.OK),
             (self.reader, HTTPStatus.NOT_FOUND),
         )
+        urls = (
+            'notes:detail',
+            'notes:edit',
+            'notes:delete'
+        )
         for user, status in users_statuses:
             self.client.force_login(user)
-            for name in ('notes:detail', 'notes:edit', 'notes:delete'):
+            for name in urls:
                 with self.subTest(user=user, name=name):
                     url = reverse(name, args=(self.note.slug,))
                     response = self.client.get(url)
