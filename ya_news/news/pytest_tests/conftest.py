@@ -91,3 +91,15 @@ def home_url():
 def detail_url(id_for_args):
     url = reverse('news:detail', args=(id_for_args))
     return url
+
+
+@pytest.fixture
+def comment_delete_url(comment_id_for_args):
+    url = reverse('news:delete', args=(comment_id_for_args))
+    return url
+
+
+@pytest.fixture
+def comment_edit_url(comment_id_for_args):
+    url = reverse('news:edit', args=(comment_id_for_args))
+    return url

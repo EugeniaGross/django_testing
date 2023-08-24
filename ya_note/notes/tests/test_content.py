@@ -27,6 +27,10 @@ class TestContent(TestCase):
         self.reader_client.force_login(self.reader)
 
     def test_authorized_client_has_form(self):
+        """
+        Авторизованному клиенту передается форма
+        для добавления и редактирования заметки.
+        """
         urls = (
             ('notes:add', None),
             ('notes:edit', (self.note.slug, ))
@@ -38,12 +42,14 @@ class TestContent(TestCase):
                 self.assertIn('form', response.context)
 
     def test_note_in_list_for_author(self):
+        """Заметка автора есть в списке заметок на его странице."""
         url = reverse('notes:list')
         response = self.author_client.get(url)
         object_list = response.context['object_list']
         self.assertIn(self.note, object_list)
 
     def test_note_not_in_list_for_another_user(self):
+        """Заметки автора нет списке заметок другого пользователя."""
         url = reverse('notes:list')
         response = self.reader_client.get(url)
         object_list = response.context['object_list']

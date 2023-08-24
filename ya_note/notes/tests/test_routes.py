@@ -21,21 +21,37 @@ class TestRoutes(TestCase):
             slug='author_1',
             author=cls.author,
         )
-
-    def test_pages_availability_for_anonymous_user(self):
-        urls = (
+        cls.public_urls = (
             'notes:home',
             'users:login',
             'users:logout',
             'users:signup',
         )
-        for name in urls:
+        cls.private_urls = (
+            ('notes:detail', (cls.note.slug, )),
+            ('notes:edit', (cls.note.slug, )),
+            ('notes:delete', (cls.note.slug, )),
+            ('notes:add', None),
+            ('notes:success', None),
+            ('notes:list', None)
+        )
+
+    def test_pages_availability_for_anonymous_user(self):
+        """
+        Домашняя страница, страница входа, выхода и регистрации
+        доступны для анонимного пользователя.
+        """
+        for name in self.public_urls:
             with self.subTest(name=name):
                 url = reverse(name)
                 response = self.client.get(url)
                 self.assertEqual(response.status_code, HTTPStatus.OK)
 
     def test_availability_for_auth_user(self):
+        """
+        Страница добавления заметки, списка заметок и страница
+        успешного добавления заметки доступны для авторизованных пользователей.
+        """
         urls = (
             'notes:add',
             'notes:success',
@@ -49,6 +65,10 @@ class TestRoutes(TestCase):
                 self.assertEqual(response.status_code, HTTPStatus.OK)
 
     def test_availability_for_note_see_edit_and_delete(self):
+        """
+        Страница просмотра заметки, удаления и редактирования
+        доступны для авторизованных пользователей.
+        """
         users_statuses = (
             (self.author, HTTPStatus.OK),
             (self.reader, HTTPStatus.NOT_FOUND),
@@ -67,16 +87,9 @@ class TestRoutes(TestCase):
                     self.assertEqual(response.status_code, status)
 
     def test_redirect_for_anonymous_client(self):
+        """Переадресация анонимных пользователей на страницу входа."""
         login_url = reverse('users:login')
-        url = (
-            ('notes:detail', (self.note.slug, )),
-            ('notes:edit', (self.note.slug, )),
-            ('notes:delete', (self.note.slug, )),
-            ('notes:add', None),
-            ('notes:success', None),
-            ('notes:list', None)
-        )
-        for name, args in url:
+        for name, args in self.private_urls:
             with self.subTest(name=name):
                 url = reverse(name, args=args)
                 redirect_url = f'{login_url}?next={url}'

@@ -4,7 +4,7 @@ from django.conf import settings
 
 @pytest.mark.django_db
 def test_news_count(client, news, home_url):
-    '''Количество новостей на главной странице.'''
+    """Количество новостей на главной странице."""
     response = client.get(home_url)
     object_list = response.context['object_list']
     news_count = len(object_list)
@@ -13,7 +13,7 @@ def test_news_count(client, news, home_url):
 
 @pytest.mark.django_db
 def test_news_order(client, news, home_url):
-    '''Сортировка новостей.'''
+    """Сортировка новостей."""
     response = client.get(home_url)
     object_list = response.context['object_list']
     all_dates = [news.date for news in object_list]
@@ -23,7 +23,7 @@ def test_news_order(client, news, home_url):
 
 @pytest.mark.django_db
 def test_comments_order(client, new, comments, detail_url):
-    '''Сортировка комментариев.'''
+    """Сортировка комментариев."""
     response = client.get(detail_url)
     assert 'news' in response.context
     news = response.context['news']
@@ -42,9 +42,9 @@ def test_comments_order(client, new, comments, detail_url):
 def test_notes_list_for_different_users(
         new, parametrized_client, comment_in_list, detail_url
 ):
-    '''
+    """
     Форма для комментариев для зарегистрированного
     и незарегистированного пользователя.
-    '''
+    """
     response = parametrized_client.get(detail_url)
     assert ('form' in response.context) is comment_in_list
